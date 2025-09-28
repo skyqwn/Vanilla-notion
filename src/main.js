@@ -1,7 +1,7 @@
 // =============================================================
 // Mini Notion
 // -------------------------------------------------------------
-// ✅ 구성: [상태/스토리지] → [테마] → [영속화] → [사이드바 폭/반응형] → [트리 렌더] →
+// 구성: [상태/스토리지] → [테마] → [영속화] → [사이드바 폭/반응형] → [트리 렌더] →
 // [드롭다운/인라인 이름변경] → [드래그앤드롭] → [라우팅] → [에디터/툴바]
 // [이모지] → [즐겨찾기/새 하위] → [루트 추가] → [휴지통] → [즐겨찾기 모달]
 // [퀵서치] → [설정/테마/내보내기/가져오기] → [컨펌 모달] → [단축키] → [init]
@@ -103,4 +103,33 @@ function save() {
 
 function uid() {
   return Math.random().toString(36).slice(2, 11);
+}
+
+function childrenOf(pid) {
+  return state.docs
+    .filter((d) => d.parentId === pid)
+    .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
+}
+
+function findDoc(id) {
+  return state.docs.find((d) => d.id === id);
+}
+
+function maxOrder(pid) {
+  const kids = childrenOf(pid);
+  return kids.length ? Math.max(...kids.map((k) => k.order)) + 1 : 0;
+}
+
+function existsInDocs(id) {
+  return !!findDoc(id);
+}
+
+function isDescendant(id, maybeAncestorId) {
+  if (!id || !maybeAncestorId) return false;
+  let cur = findDoc(id);
+  while (cur && cur.parentId) {
+    if (cur.parentId === maybeAncestorId) return true;
+    cur = findDoc(cur.parentId);
+  }
+  return false;
 }
